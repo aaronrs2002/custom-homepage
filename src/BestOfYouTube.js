@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-
 import YouTube from "react-youtube";
 
 class BestOfYouTube extends Component {
@@ -8,12 +7,15 @@ class BestOfYouTube extends Component {
     this.state = {
       autoSlide: true,
       activeVideo: 0,
-      bestofYouTubeVids: []
+      bestofYouTubeVids: [],
+      animation: "youTubeIframe",
+      originalVideos: [],
     };
     this.moveSlide = this.moveSlide.bind(this);
     this.autoSlide = this.autoSlide.bind(this);
     this.pauseSlide = this.pauseSlide.bind(this);
     this.playSlide = this.playSlide.bind(this);
+    this.fetchData = this.fetchData.bind(this);
   }
   moveSlide(whichVideo) {
     if (whichVideo < 0) whichVideo = 29;
@@ -21,53 +23,64 @@ class BestOfYouTube extends Component {
 
     this.setState({
       activeVideo: whichVideo,
-      autoSlide: false
+      autoSlide: false,
     });
   }
 
   pauseSlide() {
     const sliding = this.state.autoSlide;
     this.setState({
-      autoSlide: false
+      autoSlide: false,
     });
   }
 
   playSlide() {
     const sliding = this.state.autoSlide;
     this.setState({
-      autoSlide: true
+      autoSlide: true,
     });
   }
 
   autoSlide() {
-    setInterval(activeVideo => {
+    setInterval(() => {
       let newActive = this.state.activeVideo + 1;
       if (newActive < 0) newActive = 29;
       if (newActive > 29) newActive = 0;
 
       if (this.state.autoSlide === true) {
-        this.setState({ activeVideo: newActive });
+        this.setState({
+          activeVideo: newActive,
+          animation: "youTubeIframe animated fadeIn",
+        });
       }
     }, 5000);
+    setInterval(() => {
+      if (this.state.autoSlide === true) {
+        this.setState({
+          animation: "youTubeIframe",
+        });
+      }
+    }, 6000);
   }
 
   componentDidMount() {
-    fetch("XXXXXX/bestOfYouTube.php")
-      .then(res => res.json())
+    fetch("XXXXXXXXXX/bestOfYouTube.php")
+      .then((res) => res.json())
       .then(
-        result => {
+        (result) => {
           this.setState({
             isLoaded: true,
-            bestofYouTubeVids: result
+            bestofYouTubeVids: result,
+            originalVideos: result,
           });
         },
         // Note: it's important to handle errors here
         // instead of a catch() block so that we don't swallow
         // exceptions from actual bugs in components.
-        error => {
+        (error) => {
           this.setState({
             isLoaded: true,
-            error
+            error,
           });
         }
       );
@@ -75,15 +88,67 @@ class BestOfYouTube extends Component {
     this.autoSlide();
   }
 
+  fetchData() {
+    const searchVal = document.getElementById("YouTubeQuery").value;
+
+    if (searchVal !== "") {
+      fetch(
+        "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=30&q=" +
+          searchVal +
+          "&type=video&key=XXXXXXXXXX"
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          let tempData = [];
+          if (data) {
+            for (let i = 0; i < data.items.length; i++) {
+              tempData.push(data.items[i].id.videoId);
+            }
+            this.setState({
+              bestofYouTubeVids: tempData,
+              activeVideo: 0,
+              autoSlide: true,
+            });
+          }
+        });
+    } else {
+      this.setState({
+        bestofYouTubeVids: this.state.originalVideos,
+        activeVideo: 0,
+        autoSlide: true,
+      });
+    }
+  }
+
   render() {
-    const bestofYouTubeVids = this.state.bestofYouTubeVids;
+    const videoObj = this.state.bestofYouTubeVids;
     const activeVideo = this.state.activeVideo;
 
     return (
       <div className="row">
         <div className="col-md-12">
+          <div className="input-group mb-3">
+            <input
+              type="text"
+              className="form-control"
+              id="YouTubeQuery"
+              placeholder="Update video list"
+            />
+            <span class="input-group-btn">
+              <button
+                className="btn btn-dark"
+                type="button"
+                id="search-button"
+                onClick={this.fetchData}
+              >
+                <i className="fas fa-search"></i>
+              </button>
+            </span>
+          </div>
+        </div>
+        <div className="col-md-12">
           <ul className="videoindexParent">
-            {this.state.bestofYouTubeVids.map((movie, i) => {
+            {videoObj.map((movie, i) => {
               return (
                 <li
                   key={i}
@@ -97,18 +162,17 @@ class BestOfYouTube extends Component {
             })}
           </ul>
         </div>
-        <div className="youTubeFrame col-md-12">
+        <div className="col-md-12">
           <YouTube
-            videoId={bestofYouTubeVids[activeVideo]}
-            id={bestofYouTubeVids[activeVideo]}
-            className={"youTubeIframe animate slideInLeft"}
+            videoId={videoObj[activeVideo]}
+            id={videoObj[activeVideo]}
+            className={this.state.animation}
             onPlay={this.pauseSlide}
           />
         </div>
         <div className="col-md-12">
           <small>Carousel Controls</small>
         </div>
-
         <div className="btn-group col-md-12" role="group">
           <button
             type="button"
