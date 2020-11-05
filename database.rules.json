@@ -17,6 +17,12 @@
         ".read": "$uid === auth.uid",
         ".write": "$uid === auth.uid"
       }
-    }
+    },
+    "rssFeed": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    }      
   }
 }
