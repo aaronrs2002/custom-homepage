@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import APIkey from "./config/APIkey.js";
+//import YouTubeSearch from "./YoutTubeSearch";
 import YouTube from "react-youtube";
 
 class BestOfYouTube extends Component {
@@ -64,7 +66,7 @@ class BestOfYouTube extends Component {
   }
 
   componentDidMount() {
-    fetch("XXXXXXXXXX/bestOfYouTube.php")
+    fetch("https://mechanized-aesthetics.net/landingHome/bestOfYouTube.php")
       .then((res) => res.json())
       .then(
         (result) => {
@@ -95,7 +97,8 @@ class BestOfYouTube extends Component {
       fetch(
         "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=30&q=" +
           searchVal +
-          "&type=video&key=XXXXXXXXXX"
+          "&type=video&key=" +
+          APIkey
       )
         .then((res) => res.json())
         .then((data) => {
