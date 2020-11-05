@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import APIkey from "./config/APIkey.js";
+import videoListAPI from "./config/videoListAPI.js";
 import YouTube from "react-youtube";
 
 class BestOfYouTube extends Component {
@@ -65,7 +66,7 @@ class BestOfYouTube extends Component {
   }
 
   componentDidMount() {
-    fetch("XXXXXXXXXX")
+    fetch(videoListAPI)
       .then((res) => res.json())
       .then(
         (result) => {
