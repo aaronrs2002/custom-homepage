@@ -98,7 +98,7 @@ class BestOfYouTube extends Component {
         "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=30&q=" +
           searchVal +
           "&type=video&key=" +
-          APIkey
+          APIkey()
       )
         .then((res) => res.json())
         .then((data) => {
